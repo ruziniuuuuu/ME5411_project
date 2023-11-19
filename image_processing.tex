@@ -1,0 +1,359 @@
+% This LaTeX was auto-generated from MATLAB code.
+% To make changes, update the MATLAB code and export to LaTeX again.
+
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epstopdf}
+\usepackage[table]{xcolor}
+\usepackage{matlab}
+
+\sloppy
+\epstopdfsetup{outdir=./}
+\graphicspath{ {./image_processing_images/} }
+
+\begin{document}
+
+\matlabheading{Display the original image on screen.}
+
+\begin{matlabcode}
+clc; clear;
+img = imread('charact2.bmp');
+imshow(img);
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{22.07727044656297em}]{figure_0.png}
+\end{center}
+\begin{matlabcode}
+% Convert the Image to Grayscale
+grayImg = rgb2gray(img);
+imshow(grayImg);
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{22.07727044656297em}]{figure_1.png}
+\end{center}
+\begin{matlabcode}
+% Create a 3D plot of the grayscale image
+create3DIntensityPlot(grayImg)
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{22.07727044656297em}]{figure_2.png}
+\end{center}
+
+
+\matlabheading{Implement a 3x3 Averaging Mask}
+
+\begin{matlabcode}
+% Create a 3x3 averaging filter
+avgFilter = ones(3, 3) / 9;
+% Apply the averaging filter to the image
+avgFilteredImg = imfilter(grayImg, avgFilter);
+% Show the avg filter image
+imshow(avgFilteredImg);
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{22.07727044656297em}]{figure_3.png}
+\end{center}
+
+
+\matlabheading{Implementing a 3x3 Rotating Mask}
+
+\begin{matlabcode}
+rotFilter = [8 1 1; 1 1 1; 1 1 1];
+rotFilter = rotFilter ./ sum(rotFilter(:));
+rotFilteredImg = avgFilteredImg;
+
+for i = 1:4
+    rotFilteredImg = imfilter(rotFilteredImg, rotFilter);
+    rotFilter = rot90(rotFilter);
+end
+imshow(rotFilteredImg);
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{22.07727044656297em}]{figure_4.png}
+\end{center}
+
+
+\matlabheading{Gaussian Filtering}
+
+\begin{matlabcode}
+gaussFilteredImg = imgaussfilt(grayImg, 2);
+imshow(gaussFilteredImg);
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{22.07727044656297em}]{figure_5.png}
+\end{center}
+\begin{matlabcode}
+create3DIntensityPlot(gaussFilteredImg);
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{22.07727044656297em}]{figure_6.png}
+\end{center}
+
+
+\matlabheading{Sobel operation}
+
+\begin{matlabcode}
+% SobelMagnitude = applySobel(gaussFilteredImg);
+% imshow(SobelMagnitude);
+% create3DIntensityPlot(SobelMagnitude);
+\end{matlabcode}
+
+
+\matlabheading{Experiment with masks of different sizes}
+
+
+\matlabheading{Morphological Operation}
+
+\begin{matlabcode}
+% Process the image to extract "HD44780A00", find outlines and segment characters
+thresholdValue = graythresh(avgFilteredImg);
+binaryImg = imbinarize(avgFilteredImg, thresholdValue);
+imshow(binaryImg);
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{22.07727044656297em}]{figure_7.png}
+\end{center}
+\begin{matlabcode}
+morphProcessedImg = applyMorphologicalProcessing(binaryImg);
+imshow(morphProcessedImg);
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{22.07727044656297em}]{figure_8.png}
+\end{center}
+
+
+\matlabheading{Extract Sub-Image}
+
+\begin{matlabcode}
+% extract sub-image
+counts = sum(morphProcessedImg, 2);
+threshold = 250;
+startOfCharacters = find(counts > threshold, 1, 'first') - 10;
+endOfCharacters = find(counts > threshold, 1, 'last') + 10;
+plot(counts, 'b', 'LineWidth', 2);
+title('Count of Value 1 Pixels in Each Row');
+xlabel('Row Number');
+ylabel('Count of Value 1 Pixels');
+ylim = get(gca, 'YLim'); % Get the current y-axis limits
+line([startOfCharacters startOfCharacters], ylim, 'Color', 'r', 'LineStyle', '--');
+line([endOfCharacters endOfCharacters], ylim, 'Color', 'r', 'LineStyle', '--');
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{22.07727044656297em}]{figure_9.png}
+\end{center}
+\begin{matlabcode}
+lowerImg = morphProcessedImg(startOfCharacters:endOfCharacters, :);
+imshow(lowerImg);
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{22.07727044656297em}]{figure_10.png}
+\end{center}
+\begin{center}
+\includegraphics[width=\maxwidth{22.07727044656297em}]{figure_11.png}
+\end{center}
+\begin{matlaboutput}
+charLabels = 132x990    
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+
+\end{matlaboutput}
+\begin{center}
+\includegraphics[width=\maxwidth{22.07727044656297em}]{figure_12.png}
+\end{center}
+
+
+\matlabheading{Segment Characters}
+
+\begin{matlabcode}
+% Define the directory to save character images
+outputDir = '.\Characters';  % Change this to your desired path
+if ~exist(outputDir, 'dir')
+    mkdir(outputDir);  % If the directory doesn't exist, create it
+end
+
+% Segment characters
+% Label connected components
+[charLabels, charNum] = bwlabel(lowerImg);
+
+% Loop through each label to extract, display, and save character images
+charIdx = 1;
+for n = 1:charNum
+    % Find the boundaries of the nth character
+    [row, col] = find(charLabels == n);
+    
+    % Determine the bounding box around the character
+    topRow = min(row);
+    bottomRow = max(row);
+    leftColumn = min(col);
+    rightColumn = max(col);
+    
+    % Cut the character out of the image
+    characterImg = lowerImg(topRow:bottomRow, leftColumn:rightColumn);
+
+    if (n == 6) || (n == 8)
+        [height, width] = size(characterImg);
+        midPoint = round(width / 2);
+        % Crop the left and right halves
+        leftHalf = characterImg(:, 1:midPoint);
+        rightHalf = characterImg(:, midPoint+1:end);
+        imwrite(leftHalf, fullfile(outputDir, sprintf('Character_%d.png', charIdx)));
+        figure;
+        imshow(leftHalf);
+        title(['Character ', num2str(charIdx)]);
+        charIdx = charIdx + 1;
+        imwrite(rightHalf, fullfile(outputDir, sprintf('Character_%d.png', charIdx)));
+        figure;
+        imshow(rightHalf);
+        title(['Character ', num2str(charIdx)]);
+        charIdx = charIdx + 1;
+        continue;
+    end
+    
+    % Save the character image as a PNG file in the output directory
+    imwrite(characterImg, sprintf('Character_%d.png', charIdx));
+    
+    % Optionally display each character with a figure
+    figure;
+    imshow(characterImg);
+    title(['Character ', num2str(charIdx)]);
+    charIdx = charIdx + 1;
+end
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{20.471650777722026em}]{figure_13.png}
+\end{center}
+\begin{center}
+\includegraphics[width=\maxwidth{20.572002007024587em}]{figure_14.png}
+\end{center}
+\begin{center}
+\includegraphics[width=\maxwidth{20.17059708981435em}]{figure_15.png}
+\end{center}
+\begin{center}
+\includegraphics[width=\maxwidth{20.17059708981435em}]{figure_16.png}
+\end{center}
+\begin{center}
+\includegraphics[width=\maxwidth{19.769192172604114em}]{figure_17.png}
+\end{center}
+\begin{center}
+\includegraphics[width=\maxwidth{20.471650777722026em}]{figure_18.png}
+\end{center}
+\begin{center}
+\includegraphics[width=\maxwidth{20.471650777722026em}]{figure_19.png}
+\end{center}
+\begin{center}
+\includegraphics[width=\maxwidth{20.17059708981435em}]{figure_20.png}
+\end{center}
+\begin{center}
+\includegraphics[width=\maxwidth{20.471650777722026em}]{figure_21.png}
+\end{center}
+\begin{center}
+\includegraphics[width=\maxwidth{20.37129954841947em}]{figure_22.png}
+\end{center}
+
+
+\matlabheading{Find edges and segment characters}
+
+\begin{matlabcode}
+% Find edges and segment characters
+charEdges = edge(lowerImg, 'canny'); % Detect edges
+imshow(charEdges);
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{22.07727044656297em}]{figure_23.png}
+\end{center}
+\begin{matlabcode}
+[charLabels, ~] = bwlabel(lowerImg) % Label connected components
+\end{matlabcode}
+\begin{matlaboutput}
+charLabels = 132x990    
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0
+
+\end{matlaboutput}
+\begin{matlabcode}
+coloredLabels = label2rgb(charLabels, 'hsv', 'k', 'shuffle'); % Color labels for visualization
+imshow(coloredLabels);
+\end{matlabcode}
+\begin{center}
+\includegraphics[width=\maxwidth{22.07727044656297em}]{figure_24.png}
+\end{center}
+
+
+\matlabheading{Functions}
+
+\matlabheadingtwo{create3DIntensityPlot}
+
+\begin{matlabcode}
+function create3DIntensityPlot(img)
+    % Check if the image is grayscale; if not, convert it
+    if size(img, 3) == 3
+        img = rgb2gray(img);
+    end
+
+    % Create a 3D plot of the grayscale image
+    [X, Y] = meshgrid(1:size(img, 2), 1:size(img, 1));
+    Z = double(img);
+    surf(X, Y, Z, 'EdgeColor', 'none');
+    colormap('gray'), axis tight, view(-35, 45);
+    xlabel('X-axis'), ylabel('Y-axis'), zlabel('Intensity');
+    title('3D Intensity Plot of Image');
+end
+\end{matlabcode}
+
+\matlabheadingtwo{sobel operation}
+
+\begin{matlabcode}
+function sobelMagnitude = applySobel(img)
+    % Sobel filter for horizontal and vertical edge detection
+    Gx = [-1 0 1; -2 0 2; -1 0 1];
+    Gy = [-1 -2 -1; 0 0 0; 1 2 1];
+    % Apply the horizontal Sobel filters
+    grad_x = imfilter(double(img), Gx, 'same', 'replicate');
+    % Apply the vertical Sobel filters
+    grad_y = imfilter(double(img), Gy, 'same', 'replicate');
+    % Display both gradients
+    % subplot(1, 2, 1), imshow(grad_x), title('Horizontal Edges (Sobel - Gx)');
+    % subplot(1, 2, 2), imshow(grad_y), title('Vertical Edges (Sobel - Gy)');
+    % Calculate the magnitude of the gradient
+    sobelMagnitude = sqrt(grad_x.^2 + grad_y.^2);
+    sobelMagnitude = mat2gray(sobelMagnitude);
+end
+\end{matlabcode}
+
+\matlabheadingtwo{morphological operation}
+
+\begin{matlabcode}
+function morphProcessedImg = applyMorphologicalProcessing(binaryImg)
+    % Create structuring element
+    se = strel('disk', 5);
+    binaryImg = imopen(binaryImg, se);
+    binaryImg = bwareaopen(binaryImg, 200);
+    morphProcessedImg = binaryImg;
+end
+\end{matlabcode}
+
+\end{document}
