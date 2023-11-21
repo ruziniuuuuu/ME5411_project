@@ -23,7 +23,7 @@ Our main implementation is structured as follows:
 You can simply look through the exported PDF file to check our results.
 
 ### Characters
-The folder whichs store the processed images from Task 1.
+The folder which stores the processed images from Task 1.
 
 ### results
 All the figures we used in the report.
